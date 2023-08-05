@@ -1,4 +1,4 @@
-# SparseInverseSubset
+# SparseInverseSubset.jl
 
 [![Build Status](https://github.com/ElOceanografo/SparseInverseSubset.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/ElOceanografo/SparseInverseSubset.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
@@ -29,6 +29,17 @@ Zdense = inv(Matrix(A)[P, P])
 all(Z .≈ (Zdense .* sparsity_pattern))
 ```
 
-This implementation is based on the formulas in Erisman and Tinney (1975), "On computing
-certain elements of the inverse of a sparse matrix," *Communications of the ACM* 18(3) 
-177-179.
+This implementation is based on the formulas in Erisman and Tinney (1975). It has not been
+optimized very thoroughly, but is already be significantly faster than calculating a
+dense inverse once the matrix is bigger than ~100 x 100.
+
+## References
+
+Erisman, A.M. and Tinney, W.F. (1975). "On computing certain elements of the inverse of a 
+sparse matrix," *Communications of the ACM* 18(3) 177-179
+(https://dl.acm.org/doi/10.1145/360680.360704).
+
+Takahashi, K., Fagan, J., and Chin, M-S. (1973). "Formation of a sparse bus impedance 
+matrix and its application to short circuit study. *8th PICA Conference Proceedings*, 4-6
+June 1973, Minneapolis, MN.
+
