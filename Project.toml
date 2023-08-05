@@ -1,7 +1,7 @@
 name = "SparseInverseSubset"
 uuid = "dc90abb0-5640-4711-901d-7e5b23a2fada"
 authors = ["Sam Urmy <oceanographerschoice@gmail.com> and contributors"]
-version = "0.0.1"
+version = "0.1.0"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
