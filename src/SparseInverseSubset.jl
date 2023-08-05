@@ -43,7 +43,7 @@ function get_ldup(F)
     U = sparse(L')
     d = d.^2
     D = Diagonal(d)
-    return (; L, D, U, P)
+    return (L=L, D=D, U=U, P=P)
 end
 
 function get_subset(L)
@@ -89,7 +89,7 @@ function sparseinv(A::SparseMatrixCSC; depermute=false)
     if depermute
         return (Z = Z[invperm(P), invperm(P)], P = P)
     else
-        return (; Z, P)
+        return (Z=Z, P=P)
     end
 end
 
