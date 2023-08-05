@@ -21,10 +21,11 @@ using Test
     U = sparse(L')
     d = d.^2
     D = Diagonal(d)
-    C = (L + D + U) .!= 0
-    Z = sparseinv(A)
+    C1 = (L + D + U) .!= 0
 
-    Zdense = inv(Matrix(A[P, P]))
 
-    @test all(Z .≈ Zdense .* C)
+    Z1, P1 = sparseinv(A)
+    Zdense1 = inv(Matrix(A)[P1, P1])
+    @test all(Z1 .≈ Zdense1 .* C1)
+
 end
