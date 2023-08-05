@@ -7,8 +7,9 @@ export sparseinv
 
 
 """
-Fill column n in the sparse matrix Z using Takahashi's method.
-Assumes that the nth element in the column has already been calculated
+Fill column j in the sparse matrix Z using Takahashi's method, based on the upper triangle
+and diagonal matrix of a Cholesky decomposition `L` and `D`. Assumes that the nth (i.e., 
+the bottom) element in the column has already been calculated.
 """
 function fill_col!(Z, j, U, D)
     n = size(Z, 1)
@@ -23,6 +24,10 @@ function fill_col!(Z, j, U, D)
     end
 end
 
+""""
+Given a symmetric sparse matrix `Z`, fill the nonzero elements in row `j` with the 
+corresponding values in column `j`.
+"""
 function fill_transposed_col!(Z, j)
     ii = Z.rowval[nzrange(Z, j)]
     @inbounds for i in ii
@@ -46,7 +51,29 @@ function get_subset(L)
     return pattern
 end
 
-function sparseinv(A::SparseMatrixCSC)
+"""
+    sparseinv(A::SparseMatrixCSC[; depermute=false])
+
+Calculate the inverse subset of the symmetrical sparse matrix `A` using Takahashi's
+method. Returns a `NamedTuple` with fields `Z` and `P`, where `Z` is the partial inverse
+of `A` and `P` is a permutation vector.
+
+If `L` is the lower-triangular Cholesky factor of `A`, then `Z` will have the same 
+sparsity pattern as `L + L' + I`. Each nonzero entry `Z[i, j]` will be equal to the 
+corresponding entry in `inv(Matrix(A)[P, P])` (up to machine precision).
+
+If `depermute=true`, the matrix `Z` is de-permuted before returning, so that 
+`Z[i, j] == inv(Matrix(A))[i,j]`.
+
+Erisman, A.M. and Tinney, W.F. (1975). "On computing certain elements of the inverse of a 
+sparse matrix," *Communications of the ACM* 18(3) 177-179
+(https://dl.acm.org/doi/10.1145/360680.360704).
+
+Takahashi, K., Fagan, J., and Chin, M-S. (1973). "Formation of a sparse bus impedance 
+matrix and its application to short circuit study. *8th PICA Conference Proceedings*, 4-6
+June 1973, Minneapolis, MN.
+"""
+function sparseinv(A::SparseMatrixCSC; depermute=false)
     issymmetric(A) || error("matrix must be square and symmetrical.")
     n = size(A, 1)
     F = cholesky(A)
@@ -59,7 +86,11 @@ function sparseinv(A::SparseMatrixCSC)
         fill_col!(Z, j, U, D)
         fill_transposed_col!(Z, j)
     end
-    return (; Z, P)
+    if depermute
+        return (Z = Z[invperm(P), invperm(P)], P = P)
+    else
+        return (; Z, P)
+    end
 end
 
 # function sparseinv(A::SparseMatrixCSC, sparsity::SparseMatrixCSC)

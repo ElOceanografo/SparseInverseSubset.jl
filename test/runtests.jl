@@ -27,5 +27,8 @@ using Test
     Z1, P1 = sparseinv(A)
     Zdense1 = inv(Matrix(A)[P1, P1])
     @test all(Z1 .≈ Zdense1 .* C1)
-
+    Z2, P2 = sparseinv(A, depermute=true)
+    Zdense2 = inv(Matrix(A))
+    C2 = Z2 .!= 0
+    @test all(Z2 .≈ Zdense2 .* C2)
 end
