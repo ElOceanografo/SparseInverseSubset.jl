@@ -29,8 +29,10 @@ Given a symmetric sparse matrix `Z`, fill the nonzero elements in row `j` with t
 corresponding values in column `j`.
 """
 function fill_transposed_col!(Z, j)
-    ii = Z.rowval[nzrange(Z, j)]
-    @inbounds for i in ii
+    # ii = Z.rowval[nzrange(Z, j)]
+    kk = reverse(nzrange(Z, j))
+    @inbounds for k in kk
+        i = Z.rowval[k]
         Z[j,i] = Z[i,j]
     end
 end
