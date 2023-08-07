@@ -2,6 +2,7 @@ module SparseInverseSubset
 
 using SparseArrays
 using LinearAlgebra
+using SuiteSparse
 
 export sparseinv
 
@@ -87,7 +88,7 @@ function sparseinv(A::SparseMatrixCSC; depermute=false)
     return sparseinv(F; depermute=depermute)
 end
 
-function sparseinv(F::SparseArrays.CHOLMOD.Factor; depermute=false)
+function sparseinv(F::SuiteSparse.CHOLMOD.Factor; depermute=false)
     L, D, U, P = get_ldup(F)
     n = size(L, 1)
     sparsity = get_subset(L)
