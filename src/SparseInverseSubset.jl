@@ -75,9 +75,13 @@ June 1973, Minneapolis, MN.
 """
 function sparseinv(A::SparseMatrixCSC; depermute=false)
     issymmetric(A) || error("matrix must be square and symmetrical.")
-    n = size(A, 1)
     F = cholesky(A)
+    return sparseinv(F; depermute=depermute)
+end
+
+function sparseinv(F::SparseArrays.CHOLMOD.Factor; depermute=false)
     L, D, U, P = get_ldup(F)
+    n = size(L, 1)
     sparsity = get_subset(L)
     Z = sparsity .* 999.0
     ii, jj, zz = findnz(Z)
