@@ -7,6 +7,10 @@ calculating a subset of the inverse of a sparse symmetrical matrix $A$ based on 
 Cholesky factorization $A = L L^T$. The partial inverse matrix $Z$ has the same sparsity 
 pattern as $L + L'$ is equal to the full inverse $A^{-1}$ on these elements.
 
+The package exports a single function, `sparseinv`, which takes a `SparseMatrixCSC` and 
+returns the sparse inverse matrix and the permutation vector from the Cholesky 
+decomposition:
+
 ```julia
 using SparseInverseSubset
 using SparseArrays
@@ -26,6 +30,15 @@ Z, P = sparseinv(A)
 sparsity_pattern = Z .!= 0
 Zdense = inv(Matrix(A)[P, P])
 all(Z .≈ (Zdense .* sparsity_pattern)) # true
+```
+
+If the keyword argument `depermute` is set to `true`, the sparse inverse matrix is 
+de-permuted before returning, so its rows and columns match those of `inv(Matrix(A))`:
+
+```julia
+Z, P = sparseinv(A; depermute=true)
+sparsity_pattern = Z .!= 0
+all(Z .≈ (inv(Matrix(A)) .* sparsity_pattern)) # true
 ```
 
 This implementation is based on the formulas in Erisman and Tinney (1975). It has not been
