@@ -62,10 +62,12 @@ end
 
 """
     sparseinv(A::SparseMatrixCSC[; depermute=false])
+    sparseinv(F::SuiteSparse.CHOLMOD.Factor[; depermute=false])
 
 Calculate the inverse subset of the symmetrical sparse matrix `A` using Takahashi's
 method. Returns a `NamedTuple` with fields `Z` and `P`, where `Z` is the partial inverse
-of `A` and `P` is a permutation vector.
+of `A` and `P` is a permutation vector. If the Cholesky factorization of `A` has already
+been computed, that can be supplied instead.
 
 If `L` is the lower-triangular Cholesky factor of `A`, then `Z` will have the same 
 sparsity pattern as `L + L' + I`. Each nonzero entry `Z[i, j]` will be equal to the 
