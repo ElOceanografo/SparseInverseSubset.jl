@@ -13,10 +13,16 @@ the bottom) element in the column has already been calculated.
 """
 function fill_col!(Z, j, U, D)
     n = size(Z, 1)
-    ii = Z.rowval[nzrange(Z, j)]
-    ii = ii[findall(i -> (i <= j) && (i < n), ii)]
-    ii = reverse(ii)
-    @inbounds for i in ii
+    # ii = Z.rowval[nzrange(Z, j)]
+    # ii = ii[findall(i -> (i <= j) && (i < n), ii)]
+    # ii = reverse(ii)
+    kk = reverse(nzrange(Z, j))
+    # @inbounds for i in ii
+    @inbounds for k in kk
+        i = Z.rowval[k]
+        if (i > j) || (i >= n)
+            continue
+        end
         Z[i,j] = -sum(@inbounds U[i,k] * Z[k,j] for k in i+1:n)
         if i == j
             Z[i,j] += 1/D[i,i]
