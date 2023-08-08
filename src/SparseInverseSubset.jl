@@ -14,11 +14,7 @@ the bottom) element in the column has already been calculated.
 """
 function fill_col!(Z, j, U, D)
     n = size(Z, 1)
-    # ii = Z.rowval[nzrange(Z, j)]
-    # ii = ii[findall(i -> (i <= j) && (i < n), ii)]
-    # ii = reverse(ii)
     kk = reverse(nzrange(Z, j))
-    # @inbounds for i in ii
     @inbounds for k in kk
         i = Z.rowval[k]
         if (i > j) || (i >= n)
@@ -36,7 +32,6 @@ Given a symmetric sparse matrix `Z`, fill the nonzero elements in row `j` with t
 corresponding values in column `j`.
 """
 function fill_transposed_col!(Z, j)
-    # ii = Z.rowval[nzrange(Z, j)]
     kk = reverse(nzrange(Z, j))
     @inbounds for k in kk
         i = Z.rowval[k]
