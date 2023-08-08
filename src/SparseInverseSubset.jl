@@ -44,7 +44,10 @@ function fill_transposed_col!(Z, j)
     end
 end
 
-function get_ldup(F)
+"""
+Construct sparse Julia versions of L, D, U, and P from a CHOLMOD Cholesky factorization.
+"""
+function get_ldup(F::SuiteSparse.CHOLMOD.Factor)
     L = sparse(F.L)
     P = F.p
     d = Vector(diag(L))
@@ -55,6 +58,9 @@ function get_ldup(F)
     return (L=L, D=D, U=U, P=P)
 end
 
+"""
+Find the sparsity pattern of the inverse subset based on the lower Cholesky factor L.
+"""
 function get_subset(L)
     pattern = sparse(L + I + L') .!= 0
     return pattern
