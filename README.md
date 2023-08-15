@@ -5,7 +5,7 @@
 This is a lightweight, experimental package implementing Takahashi's algorithm for 
 calculating a subset of the inverse of a sparse symmetrical matrix $A$ based on its
 Cholesky factorization $A = L L^T$. The partial inverse matrix $Z$ has the same sparsity 
-pattern as $L + L'$ is equal to the full inverse $A^{-1}$ on these elements.
+pattern as $L + L'$ and is equal to the full inverse $A^{-1}$ on these elements.
 
 The package exports a single function, `sparseinv`, which takes a `SparseMatrixCSC` and 
 returns the sparse inverse matrix and the permutation vector from the Cholesky 
@@ -42,7 +42,7 @@ all(Z .≈ (inv(Matrix(A)) .* sparsity_pattern)) # true
 ```
 
 This implementation is based on the formulas in Erisman and Tinney (1975). It has not been
-optimized or tested very thoroughly, but is already be significantly faster than
+optimized or tested very thoroughly, but is already significantly faster than
 calculating a dense inverse once the matrix is bigger than ~100 x 100.
 
 ## References
