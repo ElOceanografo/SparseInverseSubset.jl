@@ -42,15 +42,19 @@ end
 """
 Construct sparse Julia versions of L, D, U, and P from a CHOLMOD Cholesky factorization.
 """
-function get_ldup(F::SuiteSparse.CHOLMOD.Factor)
-    L = sparse(F.L)
-    P = F.p
-    d = Vector(diag(L))
-    L = tril(L * Diagonal(1 ./ d), -1)
-    U = sparse(L')
-    d = d.^2
-    D = Diagonal(d)
-    return (L=L, D=D, U=U, P=P)
+function get_ldup end
+
+if Base.USE_GPL_LIBS
+    function get_ldup(F::SuiteSparse.CHOLMOD.Factor)
+        L = sparse(F.L)
+        P = F.p
+        d = Vector(diag(L))
+        L = tril(L * Diagonal(1 ./ d), -1)
+        U = sparse(L')
+        d = d.^2
+        D = Diagonal(d)
+        return (L=L, D=D, U=U, P=P)
+    end
 end
 
 """
@@ -91,21 +95,23 @@ function sparseinv(A::SparseMatrixCSC; depermute=false)
     return sparseinv(F; depermute=depermute)
 end
 
-function sparseinv(F::SuiteSparse.CHOLMOD.Factor; depermute=false)
-    L, D, U, P = get_ldup(F)
-    n = size(L, 1)
-    sparsity = get_subset(L)
-    Z = float(sparsity)
-    ii, jj, zz = findnz(Z)
-    Z[n,n] = 1 / D[n,n]
-    for j in sort(unique(jj), rev=true)
-        fill_col!(Z, j, U, D)
-        fill_transposed_col!(Z, j)
-    end
-    if depermute
-        return (Z = Z[invperm(P), invperm(P)], P = P)
-    else
-        return (Z=Z, P=P)
+if Base.USE_GPL_LIBS
+    function sparseinv(F::SuiteSparse.CHOLMOD.Factor; depermute=false)
+        L, D, U, P = get_ldup(F)
+        n = size(L, 1)
+        sparsity = get_subset(L)
+        Z = float(sparsity)
+        ii, jj, zz = findnz(Z)
+        Z[n,n] = 1 / D[n,n]
+        for j in sort(unique(jj), rev=true)
+            fill_col!(Z, j, U, D)
+            fill_transposed_col!(Z, j)
+        end
+        if depermute
+            return (Z = Z[invperm(P), invperm(P)], P = P)
+        else
+            return (Z=Z, P=P)
+        end
     end
 end
 
