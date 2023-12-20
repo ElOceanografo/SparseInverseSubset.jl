@@ -42,7 +42,7 @@ end
 """
 Construct sparse Julia versions of L, D, U, and P from a CHOLMOD Cholesky factorization.
 """
-function get_ldup(F::SuiteSparse.CHOLMOD.Factor)
+function get_ldup(F)
     L = sparse(F.L)
     P = F.p
     d = Vector(diag(L))
