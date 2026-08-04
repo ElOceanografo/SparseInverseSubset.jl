@@ -2,7 +2,14 @@ module SparseInverseSubset
 
 using SparseArrays
 using LinearAlgebra
-using SuiteSparse
+
+if Base.USE_GPL_LIBS
+    # CHOLMOD -- and with it `cholesky(::SparseMatrixCSC)` -- is only built into Julia when
+    # the GPL-licensed SuiteSparse solvers are included, so it can only be referenced under
+    # this guard. Note that `SparseArrays` and the `SuiteSparse` shim themselves do load in
+    # a `USE_GPL_LIBS=0` build; they simply omit CHOLMOD, UMFPACK and SPQR.
+    using SuiteSparse
+end
 
 export sparseinv
 
@@ -84,7 +91,17 @@ sparse matrix," *Communications of the ACM* 18(3) 177-179
 Takahashi, K., Fagan, J., and Chin, M-S. (1973). "Formation of a sparse bus impedance 
 matrix and its application to short circuit study. *8th PICA Conference Proceedings*, 4-6
 June 1973, Minneapolis, MN.
+
+!!! note
+    `sparseinv` is built on the CHOLMOD sparse Cholesky factorization, which is only
+    available in Julia builds that include the GPL-licensed SuiteSparse solvers. In a
+    build with `Base.USE_GPL_LIBS == false` this package still loads, but calling
+    `sparseinv` raises an error.
 """
+function sparseinv end
+
+if Base.USE_GPL_LIBS
+
 function sparseinv(A::SparseMatrixCSC; depermute=false)
     issymmetric(A) || error("matrix must be square and symmetrical.")
     F = cholesky(A)
@@ -108,6 +125,19 @@ function sparseinv(F::SuiteSparse.CHOLMOD.Factor; depermute=false)
         return (Z=Z, P=P)
     end
 end
+
+else # !Base.USE_GPL_LIBS
+
+# There is no sparse `cholesky` to build a factorization from, so there is nothing this
+# package can compute. Stay loadable anyway -- SparseInverseSubset is a hard dependency of
+# packages such as ChainRules, which would otherwise be unusable in a no-GPL build -- and
+# fail only if `sparseinv` is actually called. Dense inputs keep throwing `MethodError`.
+function sparseinv(::SparseMatrixCSC; depermute=false)
+    error("`sparseinv` requires the CHOLMOD sparse Cholesky factorization from SuiteSparse, " *
+          "which is not available in this Julia build (`Base.USE_GPL_LIBS == false`).")
+end
+
+end # Base.USE_GPL_LIBS
 
 # function sparseinv(A::SparseMatrixCSC, sparsity::SparseMatrixCSC)
 #     n = size(A, 1)

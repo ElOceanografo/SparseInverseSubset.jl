@@ -11,6 +11,14 @@ end
 
 
 @testset verbose=true "SparseInverseSubset.jl" begin
+if !Base.USE_GPL_LIBS
+    # No CHOLMOD in this build: check that the package loaded and that `sparseinv` says why
+    # it cannot run, rather than failing with an `UndefVarError` at load time.
+    @testset "no-GPL build" begin
+        @test_throws ErrorException sparseinv(sparse(2.0I, 3, 3))
+        @test_throws MethodError sparseinv(rand(5, 5))
+    end
+else
     A1 = sparse(
         [1, 5, 2, 3, 4, 2, 3, 4, 2, 3, 4, 5, 1, 4, 5],
         [1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5],
@@ -54,4 +62,5 @@ end
         @test_throws ErrorException sparseinv(sprand(5, 5, 0.5))
         @test_throws MethodError sparseinv(rand(5, 5))
     end
+end # Base.USE_GPL_LIBS
 end
